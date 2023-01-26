@@ -27,37 +27,23 @@ namespace Bilong
                 saslMechanism = new SaslMechanismLogin(config.UserEmailAddress, config.Password);
             }
 
-            SendWeirdMime(
+            SendMultipartAlternative(
                 new MailboxAddress(config.UserDisplayName, config.UserEmailAddress),
                 new MailboxAddress(config.RecipientDisplayName, config.RecipientEmailAddress),
                 config.SmtpServer,
                 saslMechanism);
         }
 
-        public static void SendWeirdMime(MailboxAddress from, MailboxAddress to, string? smtpServer, SaslMechanism saslMechanism)
+        public static void SendMultipartAlternative(MailboxAddress from, MailboxAddress to, string? smtpServer, SaslMechanism saslMechanism)
         {
             var message = new MimeMessage();
             message.From.Add(from);
             message.To.Add(to);
             message.Subject = $"Transport rule test {DateTime.Now:o}";
 
-            // The first body part will be plain text
-            var bodyText = "Test";
-
-            // The second body part will be the same text base64 encoded
-            var memoryStream = new MemoryStream();
-            var writer = new StreamWriter(memoryStream);
-            writer.Write(bodyText);
-            writer.Flush();
-            memoryStream.Position = 0;
-
             var multipart = new MultipartAlternative();
-            multipart.Add(new TextPart("plain") { Text = bodyText });
-            multipart.Add(new MimePart("text", "plain")
-            {
-                Content = new MimeContent(memoryStream, ContentEncoding.Default),
-                ContentTransferEncoding = ContentEncoding.Base64
-            });
+            multipart.Add(new TextPart("plain") { Text = "Plain Body" });
+            multipart.Add(new TextPart("html") { Text = "<!DOCTYPE html><html lang=\"en\"><body>HTML Body</body></html>" });
 
             message.Body = multipart;
 
