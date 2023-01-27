@@ -52,7 +52,7 @@ namespace Bilong
                         return Task.FromResult(0);
                     }).ExecuteAsync();
 
-                Console.WriteLine(result.Account.Username);
+                Console.WriteLine($"Authenticated as {result.Account.Username}");
                 return result;
             }
             // TODO: handle or throw all these exceptions
