@@ -55,9 +55,18 @@ namespace Bilong
                 var from = MailboxAddress.Parse(fromValue);
                 var to = MailboxAddress.Parse(toValue);
 
-                if (string.IsNullOrEmpty(passwordValue) && string.IsNullOrEmpty(clientIdValue))
+                if (string.IsNullOrEmpty(passwordValue))
                 {
-                    Console.WriteLine($"Either {clientIdOption.Name} or {passwordOption.Name} must be provided.");
+                    if (string.IsNullOrEmpty(clientIdValue))
+                    {
+                        Console.WriteLine($"Either {clientIdOption.Name} or {passwordOption.Name} must be provided.");
+                        return;
+                    }
+                    else if (string.IsNullOrEmpty(tenantIdValue))
+                    {
+                        Console.WriteLine($"{tenantIdOption.Name} must be provided with {clientIdOption.Name}.");
+                        return;
+                    }
                 }
 
                 Console.WriteLine($"Sending from {from.Address} to {to.Address} via {smtpServerValue}:{portNumberValue} with {(string.IsNullOrEmpty(clientIdValue) ? "Basic" : "OAuth2")} auth.");
@@ -68,10 +77,10 @@ namespace Bilong
                 }
                 else
                 {
-                    var authToken = await OAuthMethods.GetATokenForGraph(clientIdValue, $"https://login.microsoftonline.com/{tenantIdValue}", new[] {"https://outlook.office.com/SMTP.Send"});
+                    var authToken = await OAuthMethods.GetATokenForGraph(clientIdValue, $"https://login.microsoftonline.com/{tenantIdValue}", new[] { "https://outlook.office.com/SMTP.Send" });
                     saslMechanism = new SaslMechanismOAuth2(authToken.Account.Username, authToken.AccessToken);
                 }
-                
+
                 SendMultipartAlternative(from, to, smtpServerValue, portNumberValue, saslMechanism);
             },
             fromArgument, toArgument, smtpServerArgument, portNumberOption, passwordOption, clientIdOption, tenantIdOption);
