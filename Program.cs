@@ -96,8 +96,8 @@ namespace Bilong
             message.Subject = $"Transport rule test {DateTime.Now:o}";
 
             var multipart = new MultipartAlternative();
-            multipart.Add(new TextPart("plain") { Text = "Plain Body" });
             multipart.Add(new TextPart("html") { Text = "<!DOCTYPE html><html lang=\"en\"><body>HTML Body</body></html>" });
+            multipart.Add(new TextPart("foo") { Text = "Bad body part" });
 
             message.Body = multipart;
 
